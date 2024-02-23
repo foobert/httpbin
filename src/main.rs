@@ -1,6 +1,8 @@
 #[macro_use]
 extern crate rocket;
 
+use rocket::fairing::{self, AdHoc};
+use rocket::{Build, Rocket};
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use rocket::http::ContentType;
@@ -47,9 +49,36 @@ async fn write(
         .ok()
 }
 
+async fn setup(rocket: Rocket<Build>) -> fairing::Result {
+    let db = Data::fetch(&rocket).expect("db");
+    match sqlx::query(
+        "CREATE TABLE IF NOT EXISTS data (id text UNIQUE, type text, timestamp int, payload blob)",
+    )
+    .execute(&**db)
+    .await
+    {
+        Ok(_) => Ok(rocket),
+        Err(e) => {
+            error!("Failed to init db: {}", e);
+            Err(rocket)
+        }
+    }
+}
+
 #[launch]
 fn rocket() -> _ {
-    rocket::build()
+    let figment = rocket::Config::figment().merge((
+        "databases.sqlite_data",
+        rocket_db_pools::Config {
+            url: "data.db".into(),
+            min_connections: None,
+            max_connections: 50,
+            connect_timeout: 5,
+            idle_timeout: None,
+        },
+    ));
+    rocket::custom(figment)
         .attach(Data::init())
+        .attach(AdHoc::try_on_ignite("setup db", setup))
         .mount("/", routes![index, read, write])
 }
