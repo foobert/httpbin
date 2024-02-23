@@ -1,0 +1,2 @@
+[default.databases.sqlite_data]
+url = "data.db"
