@@ -621,6 +621,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d897f394bad6a705d5f4104762e116a75639e470d80901eed05a860a95cb1904"
 
 [[package]]
+name = "httpbin"
+version = "0.1.0"
+dependencies = [
+ "rocket",
+ "rocket_db_pools",
+]
+
+[[package]]
 name = "httpdate"
 version = "1.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1368,14 +1376,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "eb3622f419d1296904700073ea6cc23ad690adbd66f13ea683df73298736f0c1"
 dependencies = [
  "serde",
-]
-
-[[package]]
-name = "server2"
-version = "0.1.0"
-dependencies = [
- "rocket",
- "rocket_db_pools",
 ]
 
 [[package]]
