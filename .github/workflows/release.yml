@@ -1,0 +1,36 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Install Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        override: true
+        target: aarch64-unknown-linux-gnu
+
+    - name: Install cross
+      run: cargo install cross
+
+    - name: Build
+      run: cross build --target aarch64-unknown-linux-gnu --release
+
+    - name: Upload Release Asset
+      uses: actions/upload-artifact@v2
+      with:
+        name: release-artifacts
+        path: target/aarch64-unknown-linux-gnu/release/
